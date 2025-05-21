@@ -1,0 +1,6 @@
+/private/logger
+/private/excel
+/node_modules
+.env
+/uploads
+/.history
