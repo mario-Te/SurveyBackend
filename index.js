@@ -7,17 +7,16 @@ const fs = require("fs");
 const ipAddress = require("./libs/helpers/ipAddress.js");
 const mongoose = require("mongoose");
 const appMiddlware = require("./libs/middlewares/appMiddleware.js");
-const mongoDbPath = process.env.MONGO_DB_URL;
 const routeMiddleware = require("./libs/middlewares/routeMiddleware.js");
 
-//Getting database options from env.
-const mongoDbOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  user: process.env.MONGO_DB_USERNAME,
-  pass: process.env.MONGO_DB_PASSWORD,
-  dbName: process.env.MONGO_DB_NAME,
-};
+// Construct MongoDB URI from env variables
+const mongoDbPath = `mongodb+srv://${
+  process.env.MONGO_DB_USERNAME
+}:${encodeURIComponent(process.env.MONGO_DB_PASSWORD)}@${
+  process.env.MONGO_DB_HOST
+}/${
+  process.env.MONGO_DB_NAME
+}?retryWrites=true&w=majority&appName=MongoCluster`;
 
 const uploadDir = "./uploads";
 const dirs = [
@@ -39,10 +38,14 @@ const PORT = process.env.PORT || 3000;
 const httpServer = http.createServer(app);
 
 routeMiddleware(app);
+
 mongoose.Promise = global.Promise;
 mongoose
-  .connect(mongoDbPath, mongoDbOptions)
-  .then((result) => {
+  .connect(mongoDbPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
     console.log(
       "Mongoose Connected: ".magenta +
         "Success".green +
